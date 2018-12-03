@@ -9,12 +9,15 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -54,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     private FirebaseUser mUser;
     private RecyclerView eventsRecyclerView;
     private EventsRecyclerAdapter eventsAdapter;
+    private View view;
 
     //Button b1 = findViewById(R.id.logout);
 
@@ -69,59 +73,79 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mUsername = "anonymous";
         mAuth = FirebaseAuth.getInstance();
+        final DrawerLayout mDrawerLayout;
+
         //FirebaseAuth.getInstance().signOut();
         mUser = mAuth.getCurrentUser();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // Create channel to show notifications.
-            String channelId  = getString(R.string.default_notification_channel_id);
+            String channelId = getString(R.string.default_notification_channel_id);
             String channelName = getString(R.string.default_notification_channel_name);
             NotificationManager notificationManager =
                     getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(new NotificationChannel(channelId,
                     channelName, NotificationManager.IMPORTANCE_LOW));
+
         }
 
-           if(mUser==null) {
-                startActivity(new Intent(this, SignInActivity.class));
-                finish();
-                }
-            else {
-               //startActivity(new Intent(this,SignInActivity.class));
-
-                mUsername = mUser.getDisplayName();
-                Toast.makeText(this, "Welcome", Toast.LENGTH_SHORT).show();
-                //setContentView(R.layout.activity_main);
-
-
-              startActivity(new Intent(this,dummy.class));
-              setContentView(R.layout.dummy);
+        if (mUser == null) {
+            startActivity(new Intent(this,firstpage.class));
+            //startActivity(new Intent(this, SignInActivity.class));
+            finish();
+        } else {
+            //startActivity(new Intent(this,SignInActivity.class));
+            //startActivity(new Intent(this,firstpage.class));
+            mUsername = mUser.getDisplayName();
+            Toast.makeText(this, "Welcome", Toast.LENGTH_SHORT).show();
+            //setContentView(R.layout.activity_main);
+            startActivity(new Intent(this,drawerlayout.class));
+            setContentView(R.layout.drawer_layout);
 
 
-            }
+            //setContentView(R.layout.drawer_layout);
+
+            FirebaseMessaging.getInstance().subscribeToTopic("events")
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            String msg = getString(R.string.msg_subscribed);
+                            if (!task.isSuccessful()) {
+                                msg = getString(R.string.msg_subscribe_failed);
+                            }
+                            Log.d(TAG, msg);
+                            Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+            startActivity(new Intent(this, dummy.class));
+            setContentView(R.layout.dummy);
+
+
+        }
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this, this).addApi(Auth.GOOGLE_SIGN_IN_API).build();
 
 
-                // Get token
-                FirebaseInstanceId.getInstance().getInstanceId()
-                        .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<InstanceIdResult> task) {
-                                if (!task.isSuccessful()) {
-                                    Log.w(TAG, "getInstanceId failed", task.getException());
-                                    return;
-                                }
+        // Get token
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "getInstanceId failed", task.getException());
+                            return;
+                        }
 
-                                // Get new Instance ID token
-                                String token = task.getResult().getToken();
+                        // Get new Instance ID token
+                        String token = task.getResult().getToken();
 
-                                // Log and toast
-                                String msg = getString(R.string.msg_token_fmt, token);
-                                Log.d(TAG, msg);
-                                Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                        // Log and toast
+                        String msg = getString(R.string.msg_token_fmt, token);
+                        Log.d(TAG, msg);
+                        Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+                    }
+                });
 
 
     }
@@ -156,5 +180,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
     public void onClick(View view) {
 
+    }
+
+    public View getView() {
+        return view;
     }
 }

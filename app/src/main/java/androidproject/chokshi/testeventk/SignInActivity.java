@@ -62,9 +62,7 @@ public class SignInActivity extends AppCompatActivity implements GoogleApiClient
     private Button sub;
     private static final String EMAIL = "email";
     private EditText inputEmail, inputPassword;
-    //private Button btnsigin;
-    //  private Button logout;
-   // private static final String EMAIL = "email";
+
     CallbackManager callbackManager;
 
     protected void onCreate(Bundle savedInstanceState) {

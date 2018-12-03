@@ -31,5 +31,10 @@
     <string name="default_notification_channel_name" translatable="true">Events</string>
   <!--  <string name="msg_subscribe_failed">Failed to subscribe to weather topic</string>-->
     <string name="fcm_message">FCM Message</string>
+    <string name="eventlist">Event List</string>
+    <string name="profile">profile</string>
+    <string name="msg_subscribed">Subscribed to Events</string>
+    <string name="msg_subscribe_failed">Subscription Failed</string>
+    <string name="signup">Sign Up</string>
 
 </resources>
